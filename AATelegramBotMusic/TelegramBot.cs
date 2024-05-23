@@ -61,7 +61,7 @@ namespace AATelegramBotMusic
                             var user = message.From;
                             Console.WriteLine($"{user.FirstName} ({user.Id}) написал сообщение: {message.Text}");
 
-                            if (message.Text == "/start")
+                            if (message.Text == "/start" || message.Text == "/stop")
                             {
                                 await HandleStartCommand(message);
                                 if(_userAddMusicState.ContainsKey(message.Chat.Id))
