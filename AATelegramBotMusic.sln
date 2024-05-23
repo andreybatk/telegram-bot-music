@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34302.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AATelegramBotMusic", "AATelegramBotMusic\AATelegramBotMusic.csproj", "{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCA81491-ED5D-4579-B0D4-F6E41D95200A}
+	EndGlobalSection
+EndGlobal
