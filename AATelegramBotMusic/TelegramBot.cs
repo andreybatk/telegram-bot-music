@@ -1,6 +1,7 @@
 ﻿using AATelegramBotMusic.Converter;
 using AATelegramBotMusic.Ftp;
 using AATelegramBotMusic.Models;
+using System;
 using System.Collections.Concurrent;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -60,6 +61,15 @@ namespace AATelegramBotMusic
                             var user = message.From;
                             Console.WriteLine($"{user.FirstName} ({user.Id}) написал сообщение: {message.Text}");
 
+                            if (message.Text == "/start")
+                            {
+                                await HandleStartCommand(message);
+                                if(_userAddMusicState.ContainsKey(message.Chat.Id))
+                                {
+                                    _userAddMusicState.TryRemove(message.Chat.Id, out var userState);
+                                }
+                            }
+
                             if (_userAddMusicState.ContainsKey(message.Chat.Id))
                             {
                                 if (update.Type == UpdateType.Message && update.Message.Type == MessageType.Audio)
@@ -82,7 +92,7 @@ namespace AATelegramBotMusic
                                     var fileId = audio.FileId;
                                     var file = await botClient.GetFileAsync(fileId);
 
-                                    userState.Music.InPath = $"temp_{fileId}";
+                                    userState.Music.InPath = $"temp_{fileId}.mp3";
 
                                     using (var fileStream = new FileStream(userState.Music.InPath, FileMode.Create))
                                     {
@@ -94,6 +104,8 @@ namespace AATelegramBotMusic
                                         _converter.Convert(userState.Music);
                                         await _ftpService.AddMusicFile(userState.Music);
                                         await _ftpService.AddMusicInfoInFile(userState.Music);
+                                        _ftpService.DeleteMusicFile(userState.Music.InPath);
+                                        _ftpService.DeleteMusicFile(userState.Music.OutPath);
 
                                         await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Ваша музыка успешно загружена и установлена на сервер.");
                                     }
@@ -106,11 +118,6 @@ namespace AATelegramBotMusic
                                 {
                                     await HandleAddMusicStep(message);
                                 }
-                            }
-
-                            if (message.Text == "/start")
-                            {
-                                await HandleStartCommand(message);
                             }
 
                             return;
