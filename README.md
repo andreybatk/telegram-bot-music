@@ -1,4 +1,4 @@
-# AATelegramBot
+# AATelegramBotMusic
 Telegram Bot Music Manager. Для взаимодействия с плагином BMSurf (amxx). 
 Настройки подключениий в файле appsettings.json проекта AATelegramBotMusic.
 Бот позволяет загружать музыку на сервер ftp, при этом обрабатывая ее, преобразуя из mp3 в wav.
@@ -10,4 +10,4 @@ Telegram Bot Music Manager. Для взаимодействия с плагин�
 - Telegram.Bot
 
 ## Слои
-- AATelegramBot - Console App
+- AATelegramBotMusic - Console App
