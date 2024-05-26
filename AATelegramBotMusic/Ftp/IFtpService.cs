@@ -4,8 +4,8 @@ namespace AATelegramBotMusic.Ftp
 {
     public interface IFtpService
     {
-        Task AddMusicInfoInFile(MusicInfo? info);
-        Task AddMusicFile(MusicInfo? info);
+        Task AddMusicInfoInFileAsync(MusicInfo? info);
+        Task AddMusicFileAsync(MusicInfo? info);
         void DeleteMusicFile(string filePath);
     }
 }

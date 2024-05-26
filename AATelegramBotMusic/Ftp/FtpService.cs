@@ -15,8 +15,6 @@ namespace AATelegramBotMusic.Ftp
         private static string _localPath;
         private static string _musicPath;
 
-        private static SemaphoreSlim semaphore;
-
         static FtpService()
         {
             var builder = new ConfigurationBuilder()
@@ -30,26 +28,19 @@ namespace AATelegramBotMusic.Ftp
 
             _remotePath = config["FtpRemoteFilePath"] ?? throw new InvalidOperationException("FtpRemoteFilePath is null!");
             _localPath = Path.GetFileName(_remotePath);
-
-            semaphore = new SemaphoreSlim(1);
         }
-
-        public async Task AddMusicInfoInFile(MusicInfo? info)
+        public async Task AddMusicInfoInFileAsync(MusicInfo? info)
         {
             if (info is null)
             {
                 throw new ArgumentNullException($"{nameof(info)} is null!");
             }
 
-            await DownloadFileAsync();
-
-            semaphore.Wait();
-            await AddMusic(info);
-            semaphore.Release();
-
-            await UploadInfoFileAsync();
+            DownloadFile();
+            await AddMusicAsync(info);
+            UploadInfoFile();
         }
-        public async Task AddMusicFile(MusicInfo? info)
+        public async Task AddMusicFileAsync(MusicInfo? info)
         {
             if (info is null)
             {
@@ -58,29 +49,21 @@ namespace AATelegramBotMusic.Ftp
 
             await UploadMusicFileAsync(info);
         }
-        private async Task DownloadFileAsync()
+        private void DownloadFile()
         {
-            using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect();
+            using var ftp = new FtpClient(_host, _username, _password);
+            ftp.Connect();
 
-            var status = await ftp.DownloadFile(_localPath, _remotePath, FtpLocalExists.Overwrite);
+            var status = ftp.DownloadFile(_localPath, _remotePath, FtpLocalExists.Overwrite);
             if (status.IsFailure()) throw new InvalidOperationException("DownloadFileAsync is failure!");
         }
-        private async Task DownloadFileAsync(CancellationToken token)
+        private void UploadInfoFile()
         {
-            using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect(token);
+            using var ftp = new FtpClient(_host, _username, _password);
+            ftp.Connect();
 
-            var status = await ftp.DownloadFile(_localPath, _remotePath, FtpLocalExists.Overwrite, token: token);
-            if (status.IsFailure()) throw new InvalidOperationException("DownloadFileAsync is failure!");
-        }
-        private async Task UploadInfoFileAsync()
-        {
-            using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect();
-
-            var status = await ftp.UploadFile(_localPath, _remotePath, FtpRemoteExists.Overwrite, true);
-            if (status.IsFailure()) throw new InvalidOperationException("UploadFileAsync is failure!");
+            var status = ftp.UploadFile(_localPath, _remotePath, FtpRemoteExists.Overwrite, true);
+            if (status.IsFailure()) throw new InvalidOperationException("UploadInfoFile is failure!");
         }
         private async Task UploadMusicFileAsync(MusicInfo? info)
         {
@@ -88,17 +71,9 @@ namespace AATelegramBotMusic.Ftp
             await ftp.Connect();
 
             var status = await ftp.UploadFile(info.OutPath, _musicPath + info.OutPath, FtpRemoteExists.Overwrite, true);
-            if (status.IsFailure()) throw new InvalidOperationException("UploadFileAsync is failure!");
+            if (status.IsFailure()) throw new InvalidOperationException("UploadMusicFileAsync is failure!");
         }
-        private async Task UploadFileAsync(CancellationToken token)
-        {
-            using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect(token);
-
-            var status = await ftp.UploadFile(_localPath, _remotePath, FtpRemoteExists.Overwrite, true, token: token);
-            if (status.IsFailure()) throw new InvalidOperationException("UploadFileAsync is failure!");
-        }
-        private async Task AddMusic(MusicInfo? info)
+        private async Task AddMusicAsync(MusicInfo? info)
         {
             var count = await GetCountMusicFromFile();
             if(count >= 30)
@@ -182,7 +157,6 @@ namespace AATelegramBotMusic.Ftp
             }
             catch (Exception ex)
             {
-                // Обрабатываем возможные ошибки
                 Console.WriteLine($"Произошла ошибка при удалении файла: {ex.Message}");
             }
         }

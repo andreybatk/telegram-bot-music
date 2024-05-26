@@ -102,8 +102,8 @@ namespace AATelegramBotMusic
                                     try
                                     {
                                         _converter.Convert(userState.Music);
-                                        await _ftpService.AddMusicFile(userState.Music);
-                                        await _ftpService.AddMusicInfoInFile(userState.Music);
+                                        await _ftpService.AddMusicFileAsync(userState.Music);
+                                        await _ftpService.AddMusicInfoInFileAsync(userState.Music);
                                         _ftpService.DeleteMusicFile(userState.Music.InPath);
                                         _ftpService.DeleteMusicFile(userState.Music.OutPath);
 
