@@ -15,6 +15,8 @@ namespace AATelegramBotMusic.Ftp
         private static string _localPath;
         private static string _musicPath;
 
+        private static SemaphoreSlim semaphore;
+
         static FtpService()
         {
             var builder = new ConfigurationBuilder()
@@ -28,6 +30,8 @@ namespace AATelegramBotMusic.Ftp
 
             _remotePath = config["FtpRemoteFilePath"] ?? throw new InvalidOperationException("FtpRemoteFilePath is null!");
             _localPath = Path.GetFileName(_remotePath);
+
+            semaphore = new SemaphoreSlim(1);
         }
         public async Task AddMusicInfoInFileAsync(MusicInfo? info)
         {
@@ -36,9 +40,18 @@ namespace AATelegramBotMusic.Ftp
                 throw new ArgumentNullException($"{nameof(info)} is null!");
             }
 
-            DownloadFile();
-            await AddMusicAsync(info);
-            UploadInfoFile();
+            await semaphore.WaitAsync();
+            try
+            {
+                await DownloadFileAsync();
+                await AddMusicAsync(info);
+                await UploadInfoFileAsync();
+            }
+            finally  
+            {
+                semaphore.Release();
+            }
+           
         }
         public async Task AddMusicFileAsync(MusicInfo? info)
         {
@@ -49,21 +62,21 @@ namespace AATelegramBotMusic.Ftp
 
             await UploadMusicFileAsync(info);
         }
-        private void DownloadFile()
+        private async Task DownloadFileAsync()
         {
-            using var ftp = new FtpClient(_host, _username, _password);
-            ftp.Connect();
+            using var ftp = new AsyncFtpClient(_host, _username, _password);
+            await ftp.Connect();
 
-            var status = ftp.DownloadFile(_localPath, _remotePath, FtpLocalExists.Overwrite);
+            var status = await ftp.DownloadFile(_localPath, _remotePath, FtpLocalExists.Overwrite);
             if (status.IsFailure()) throw new InvalidOperationException("DownloadFileAsync is failure!");
         }
-        private void UploadInfoFile()
+        private async Task UploadInfoFileAsync()
         {
-            using var ftp = new FtpClient(_host, _username, _password);
-            ftp.Connect();
+            using var ftp = new AsyncFtpClient(_host, _username, _password);
+            await ftp.Connect();
 
-            var status = ftp.UploadFile(_localPath, _remotePath, FtpRemoteExists.Overwrite, true);
-            if (status.IsFailure()) throw new InvalidOperationException("UploadInfoFile is failure!");
+            var status = await ftp.UploadFile(_localPath, _remotePath, FtpRemoteExists.Overwrite, true);
+            if (status.IsFailure()) throw new InvalidOperationException("UploadInfoFileAsync is failure!");
         }
         private async Task UploadMusicFileAsync(MusicInfo? info)
         {
