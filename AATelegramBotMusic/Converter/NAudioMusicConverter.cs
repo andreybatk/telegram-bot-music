@@ -3,7 +3,10 @@ using NAudio.Wave;
 
 namespace AATelegramBotMusic.Converter
 {
-    public class MusicConverter : IMusicConverter
+    /// <summary>
+    /// NAudio Конвертер из mp3 в wav (подходит для Windows)
+    /// </summary>
+    public class NAudioMusicConverter : IMusicConverter
     {
         public bool Convert(MusicInfo info)
         {

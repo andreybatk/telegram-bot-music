@@ -16,7 +16,7 @@ namespace AATelegramBotMusic
             var token = config["TelegramBotToken"] ?? throw new InvalidOperationException("TelegramBotToken is null!");
             var services = new ServiceCollection()
                 .AddSingleton<TelegramBot>()
-                .AddSingleton<IMusicConverter, MusicConverter>()
+                .AddSingleton<IMusicConverter, FFMpegMusicConverter>()
                 .AddScoped<IFtpService, FtpService>()
                 .BuildServiceProvider();
 

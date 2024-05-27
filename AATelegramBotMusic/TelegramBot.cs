@@ -101,13 +101,19 @@ namespace AATelegramBotMusic
 
                                     try
                                     {
-                                        _converter.Convert(userState.Music);
-                                        await _ftpService.AddMusicFileAsync(userState.Music);
-                                        await _ftpService.AddMusicInfoInFileAsync(userState.Music);
-                                        _ftpService.DeleteMusicFile(userState.Music.InPath);
-                                        _ftpService.DeleteMusicFile(userState.Music.OutPath);
+                                        if(_converter.Convert(userState.Music))
+                                        {
+                                            await _ftpService.AddMusicFileAsync(userState.Music);
+                                            await _ftpService.AddMusicInfoInFileAsync(userState.Music);
+                                            _ftpService.DeleteMusicFile(userState.Music.InPath);
+                                            _ftpService.DeleteMusicFile(userState.Music.OutPath);
+                                            await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Ваша музыка успешно загружена и установлена на сервер.");
+                                        }
+                                        else
+                                        {
+                                            await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Не удалось преобразовать музыку из mp3 в wav.");
+                                        }
 
-                                        await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Ваша музыка успешно загружена и установлена на сервер.");
                                     }
                                     catch (Exception ex)
                                     {
