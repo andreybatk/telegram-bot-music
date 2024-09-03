@@ -54,8 +54,7 @@ namespace AATelegramBotMusic.Ftp
                 OutPath = music.OutPath,
                 TgUserName = music.TgUserName,
                 TgMessageId= music.TgMessageId,
-                IsApproved = music.IsApproved,
-                IsLoadedOnServer = music.IsLoadedOnServer
+                IsApproved = music.IsApproved
             };
 
             await _ftpService.AddMusicFileAsync(musicInfo);

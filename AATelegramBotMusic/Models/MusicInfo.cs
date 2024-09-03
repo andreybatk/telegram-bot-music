@@ -19,10 +19,6 @@
         /// </summary>
         public bool IsApproved { get; set; }
         /// <summary>
-        /// Загружено на сервер
-        /// </summary>
-        public bool IsLoadedOnServer { get; set; }
-        /// <summary>
         /// Telegram UserName
         /// </summary>
         public string TgUserName { get; set; } = string.Empty;
