@@ -22,5 +22,13 @@
         /// Загружено на сервер
         /// </summary>
         public bool IsLoadedOnServer { get; set; }
+        /// <summary>
+        /// Telegram UserName
+        /// </summary>
+        public string TgUserName { get; set; } = string.Empty;
+        /// <summary>
+        /// Telegram Message Id
+        /// </summary>
+        public int TgMessageId { get; set; }
     }
 }
