@@ -5,6 +5,8 @@ VisualStudioVersion = 17.7.34302.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AATelegramBotMusic", "AATelegramBotMusic\AATelegramBotMusic.csproj", "{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AATelegramBotMusic.DB", "AATelegramBotMusic.DB\AATelegramBotMusic.DB.csproj", "{F4D492BB-B192-4D8E-B8E1-44773DBF6A24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01A784BD-0B0B-4C55-8E98-86E4BA8D3E6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4D492BB-B192-4D8E-B8E1-44773DBF6A24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4D492BB-B192-4D8E-B8E1-44773DBF6A24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4D492BB-B192-4D8E-B8E1-44773DBF6A24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4D492BB-B192-4D8E-B8E1-44773DBF6A24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

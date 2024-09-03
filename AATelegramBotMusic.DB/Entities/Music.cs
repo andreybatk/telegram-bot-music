@@ -1,7 +1,11 @@
-﻿namespace AATelegramBotMusic.Models
+﻿namespace AATelegramBotMusic.DB.Entities
 {
-    public class MusicInfo
+    public class Music
     {
+        /// <summary>
+        /// Уникальный идентификатор
+        /// </summary>
+        public int Id { get; set; }
         /// <summary>
         /// Название песни
         /// </summary>
