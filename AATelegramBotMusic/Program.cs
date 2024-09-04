@@ -20,6 +20,7 @@ namespace AATelegramBotMusic
             var targetChatId = long.Parse(config["TargetChatId"] ?? throw new InvalidOperationException("TargetChatId is null!"));
             var targetThreadId = int.Parse(config["TargetThreadId"] ?? throw new InvalidOperationException("TargetThreadId is null!"));
             var admins = config.GetSection("admins:admin").Get<List<string>>();
+            var isWelcomeMessage = bool.Parse(config["IsWelcomeMessage"] ?? throw new InvalidOperationException("IsWelcomeMessage is null!"));
 
             var services = new ServiceCollection()
                 .AddDbContext<ApplicationDbContext>(options =>
@@ -32,7 +33,7 @@ namespace AATelegramBotMusic
                 .AddScoped<IMusicRepository, MusicRepository>()
                 .AddScoped<IFtpService, FtpService>()
                 .BuildServiceProvider();
-            await services.GetRequiredService<TelegramBot>().Start(token, admins, targetChatId, targetThreadId);
+            await services.GetRequiredService<TelegramBot>().Start(token, admins, isWelcomeMessage, targetChatId, targetThreadId);
         }
     }
 }
