@@ -19,9 +19,8 @@ Deploy on VPS:
 - cd TelegramBotMusic1
 - ./AATelegramBotMusic
 ## Технологии
-- ASP NET CORE MVC (.NET 7)
-- Entity Framework Core (7.0.19)
-- NAudio
+- .NET 8
+- NAudio/FFMpeg
 - FluentFTP
 - Telegram.Bot
 
