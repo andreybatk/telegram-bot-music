@@ -1,6 +1,7 @@
 ﻿using AATelegramBotMusic.Converter;
 using AATelegramBotMusic.Ftp;
 using AATelegramBotMusic.Models;
+using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -15,6 +16,8 @@ namespace AATelegramBotMusic
         private static ReceiverOptions _receiverOptions;
         private static List<string> _admins;
         private static long _targetChatId;
+        private static int _targetThreadId;
+        private static string _targetCommand = "!addmusic";
 
         private readonly IMusicConverter _converter;
         private readonly IMusicService _musicService;
@@ -25,11 +28,12 @@ namespace AATelegramBotMusic
             _musicService = musicService;
         }
 
-        public async Task Start(string token, List<string> admins, long targetChatId)
+        public async Task Start(string token, List<string> admins, long targetChatId, int targetThreadId)
         {
             _botClient = new TelegramBotClient(token);
             _admins = admins;
             _targetChatId = targetChatId;
+            _targetThreadId = targetThreadId;
 
             _receiverOptions = new ReceiverOptions
             {
@@ -46,6 +50,7 @@ namespace AATelegramBotMusic
 
             var me = await _botClient.GetMeAsync();
             Console.WriteLine($"{me.FirstName} запущен!");
+            await HandleStartCommand();
 
             await Task.Delay(-1);
         }
@@ -60,14 +65,16 @@ namespace AATelegramBotMusic
                             var message = update.Message;
                             var user = message?.From;
 
-                            if (message?.Chat.Id != _targetChatId)
+                            Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId}");
+                            
+                            if (message?.MessageThreadId != _targetThreadId)
                             {
                                 return;
                             }
 
                             if (update.Type == UpdateType.Message && message.Type == MessageType.Audio)
                             {
-                                var musicInfo = await CheckMessage(message);
+                                var musicInfo = CheckMessage(message);
                                 if (musicInfo is null)
                                 {
                                     return;
@@ -94,20 +101,20 @@ namespace AATelegramBotMusic
 
                                         if (!resultCreate)
                                         {
-                                            await botClient.SendTextMessageAsync(_targetChatId, $"{user?.Username}, не удалось загрузить данные в БД.");
+                                            await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось загрузить данные в БД.", _targetThreadId);
                                             return;
                                         }
 
-                                        await botClient.SendTextMessageAsync(_targetChatId, $"{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: {string.Join(",", _admins)}");
+                                        await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: {string.Join(",", _admins)}", _targetThreadId);
                                     }
                                     else
                                     {
-                                        await botClient.SendTextMessageAsync(_targetChatId, $"{user?.Username}, не удалось преобразовать музыку из mp3 в wav.");
+                                        await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось преобразовать музыку из mp3 в wav.", _targetThreadId);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    await botClient.SendTextMessageAsync(_targetChatId, ex.Message);
+                                    await botClient.SendTextMessageAsync(_targetChatId, ex.Message, _targetThreadId);
                                 }
                             }
                             if (update.Type == UpdateType.Message && update.Message.ReplyToMessage != null)
@@ -124,18 +131,18 @@ namespace AATelegramBotMusic
                                 var resultApprove = await _musicService.ApproveMusic(update.Message.ReplyToMessage.MessageId);
                                 if (!resultApprove)
                                 {
-                                    await botClient.SendTextMessageAsync(_targetChatId, $"{user?.Username}, не удалось подтвердить загрузку музыки.");
+                                    await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось подтвердить загрузку музыки.", _targetThreadId);
                                     return;
                                 }
 
                                 var resultMusicName = await _musicService.AddToServer(update.Message.ReplyToMessage.MessageId);
                                 if (String.IsNullOrWhiteSpace(resultMusicName))
                                 {
-                                    await botClient.SendTextMessageAsync(_targetChatId, $"{user?.Username}, не удалось загрузить музыку на сервер.");
+                                    await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось загрузить музыку на сервер.", _targetThreadId);
                                     return;
                                 }
 
-                                await botClient.SendTextMessageAsync(_targetChatId, $"{user?.Username}, {resultMusicName} успешно загружена на сервер.");
+                                await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, {resultMusicName} успешно загружена на сервер.", _targetThreadId);
                             }
 
                             return;
@@ -159,13 +166,14 @@ namespace AATelegramBotMusic
             Console.WriteLine(ErrorMessage);
             return Task.CompletedTask;
         }
-        private async Task HandleStartCommand(Message message)
+        private async Task HandleStartCommand()
         {
             await _botClient.SendTextMessageAsync(
                 chatId: _targetChatId,
-                text: "Music Bot Manager. Чтобы добавить музыку на сервер: !addmusic название и прикрепленный файл (Пример: !addmusic Guf - Ice Baby)." +
-                "Максимальный размер 2 МБ. Музыка должна быть в формате mp3 и длиться не более 25 секунд." +
-                $"Чтобы подтвердить загрузку музыку на сервер, {string.Join(",", _admins)} должны ответить на сообщение смайликом :)"
+                text: $"Music Bot Manager.\r\nЧтобы добавить музыку на сервер: {_targetCommand} и прикрепленный файл.\r\n" +
+                "Максимальный размер 2 МБ. Музыка должна быть в формате mp3 и длиться не более 25 секунд.\r\n" +
+                $"Чтобы подтвердить загрузку музыку на сервер, {string.Join(", ", _admins)} должны ответить на сообщение смайликом :)",
+                messageThreadId: _targetThreadId
             );
         }
         /// <summary>
@@ -173,32 +181,19 @@ namespace AATelegramBotMusic
         /// </summary>
         /// <param name="message"></param>
         /// <returns>MusicInfo с заполненым Name, TgUserName, TgMessageId</returns>
-        private async Task<MusicInfo?> CheckMessage(Message message)
+        private MusicInfo? CheckMessage(Message message)
         {
-            var messageText = message.Text;
+            var messageText = message.Caption;
             if (messageText is null)
             {
                 return null;
             }
-            if (!messageText.StartsWith("!addmusic"))
+            if (!messageText.StartsWith(_targetCommand))
             {
                 return null;
             }
 
-            var musicName = messageText.Remove(0, 10);
-
-            if (string.IsNullOrWhiteSpace(musicName))
-            {
-                await _botClient.SendTextMessageAsync(_targetChatId, $"{message.From?.Username}, вы не ввели название песни.");
-                return null;
-            }
-            if (musicName.Length < 1 || musicName.Length > 32)
-            {
-                await _botClient.SendTextMessageAsync(_targetChatId, $"{message.From?.Username}, название песни должо быть не меньше 1 и не больше 32 символов.");
-                return null;
-            }
-
-            return new MusicInfo() { Name = musicName, TgUserName = message.From?.Username ?? "Undefined", TgMessageId = message.MessageId };
+            return new MusicInfo() { Name = message?.Audio?.Title ?? "Undefined", TgUserName = message?.From?.Username ?? "Undefined", TgMessageId = message.MessageId };
         }
         /// <summary>
         /// Проверяет на валидность аудио файл
@@ -214,15 +209,21 @@ namespace AATelegramBotMusic
                 return false;
             }
 
+            if (!audio.FileName.EndsWith(".mp3"))
+            {
+                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, формат файла должен быть MP3.", _targetThreadId);
+                return false;
+            }
+
             if (audio.FileSize > 2 * 1024 * 1024)
             {
-                await _botClient.SendTextMessageAsync(_targetChatId, $"{message.From?.Username}, файл слишком большой. Максимальный размер 2 МБ.");
+                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, файл слишком большой. Максимальный размер 2 МБ.", _targetThreadId);
                 return false;
             }
 
             if (audio.Duration > 25)
             {
-                await _botClient.SendTextMessageAsync(_targetChatId, $"{message.From?.Username}, файл слишком длинный. Максимальная продолжительность 25 секунд.");
+                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, файл слишком длинный. Максимальная продолжительность 25 секунд.", _targetThreadId);
                 return false;
             }
 

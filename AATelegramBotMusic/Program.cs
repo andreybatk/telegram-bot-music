@@ -18,6 +18,7 @@ namespace AATelegramBotMusic
             var connection = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("DefaultConnection is null!");
             var token = config["TelegramBotToken"] ?? throw new InvalidOperationException("TelegramBotToken is null!");
             var targetChatId = long.Parse(config["TargetChatId"] ?? throw new InvalidOperationException("TargetChatId is null!"));
+            var targetThreadId = int.Parse(config["TargetThreadId"] ?? throw new InvalidOperationException("TargetThreadId is null!"));
             var admins = config.GetSection("admins:admin").Get<List<string>>();
 
             var services = new ServiceCollection()
@@ -27,10 +28,11 @@ namespace AATelegramBotMusic
                 })
                 .AddSingleton<TelegramBot>()
                 .AddSingleton<IMusicConverter, FFMpegMusicConverter>()
+                .AddSingleton<IMusicService, MusicService>()
                 .AddScoped<IMusicRepository, MusicRepository>()
                 .AddScoped<IFtpService, FtpService>()
                 .BuildServiceProvider();
-            await services.GetRequiredService<TelegramBot>().Start(token, admins, targetChatId);
+            await services.GetRequiredService<TelegramBot>().Start(token, admins, targetChatId, targetThreadId);
         }
     }
 }
