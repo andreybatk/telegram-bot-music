@@ -27,7 +27,7 @@ namespace AATelegramBotMusic
                     options.UseSqlServer(connection);
                 })
                 .AddSingleton<TelegramBot>()
-                .AddSingleton<IMusicConverter, FFMpegMusicConverter>()
+                .AddSingleton<IMusicConverter, NAudioMusicConverter>()
                 .AddSingleton<IMusicService, MusicService>()
                 .AddScoped<IMusicRepository, MusicRepository>()
                 .AddScoped<IFtpService, FtpService>()

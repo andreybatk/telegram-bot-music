@@ -105,7 +105,7 @@ namespace AATelegramBotMusic
                                             return;
                                         }
 
-                                        await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: {string.Join(",", _admins)}", _targetThreadId);
+                                        await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: {string.Join(", @", _admins)}", _targetThreadId);
                                     }
                                     else
                                     {
@@ -131,7 +131,7 @@ namespace AATelegramBotMusic
                                 var resultApprove = await _musicService.ApproveMusic(update.Message.ReplyToMessage.MessageId);
                                 if (!resultApprove)
                                 {
-                                    await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось подтвердить загрузку музыки.", _targetThreadId);
+                                    await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось подтвердить загрузку музыки, либо она уже подтверждена.", _targetThreadId);
                                     return;
                                 }
 
@@ -172,7 +172,7 @@ namespace AATelegramBotMusic
                 chatId: _targetChatId,
                 text: $"Music Bot Manager.\r\nЧтобы добавить музыку на сервер: {_targetCommand} и прикрепленный файл.\r\n" +
                 "Максимальный размер 2 МБ. Музыка должна быть в формате mp3 и длиться не более 25 секунд.\r\n" +
-                $"Чтобы подтвердить загрузку музыку на сервер, {string.Join(", ", _admins)} должны ответить на сообщение смайликом :)",
+                $"Чтобы подтвердить загрузку музыку на сервер, {string.Join(", @", _admins)} должны ответить на сообщение смайликом :)",
                 messageThreadId: _targetThreadId
             );
         }
@@ -193,7 +193,7 @@ namespace AATelegramBotMusic
                 return null;
             }
 
-            return new MusicInfo() { Name = message?.Audio?.Title ?? "Undefined", TgUserName = message?.From?.Username ?? "Undefined", TgMessageId = message.MessageId };
+            return new MusicInfo() { Name = message?.Audio?.Title?.Substring(0, 32) ?? "Undefined", TgUserName = message?.From?.Username ?? "Undefined", TgMessageId = message.MessageId };
         }
         /// <summary>
         /// Проверяет на валидность аудио файл
@@ -208,7 +208,7 @@ namespace AATelegramBotMusic
             {
                 return false;
             }
-
+            
             if (!audio.FileName.EndsWith(".mp3"))
             {
                 await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, формат файла должен быть MP3.", _targetThreadId);

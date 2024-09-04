@@ -53,6 +53,10 @@ namespace AATelegramBotMusic.Ftp
             }
            
         }
+        /// <summary>
+        /// Удалят файл музыки из машины
+        /// </summary>
+        /// <param name="filePath"></param>
         public void DeleteMusicFile(string filePath)
         {
             try
