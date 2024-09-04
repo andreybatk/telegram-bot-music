@@ -211,7 +211,7 @@ namespace AATelegramBotMusic
             
             if (!audio.FileName.EndsWith(".mp3"))
             {
-                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, формат файла должен быть MP3.", _targetThreadId);
+                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, формат файла должен быть mp3.", _targetThreadId);
                 return false;
             }
 
