@@ -1,7 +1,6 @@
 ﻿using AATelegramBotMusic.Converter;
 using AATelegramBotMusic.Ftp;
 using AATelegramBotMusic.Models;
-using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -105,7 +104,14 @@ namespace AATelegramBotMusic
                                             return;
                                         }
 
-                                        await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: {string.Join(", @", _admins)}", _targetThreadId);
+                                        if (_admins.Contains(user.Username))
+                                        {
+                                            await AddMusic(message);
+                                        }
+                                        else
+                                        {
+                                            await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: {string.Join(", @", _admins)}", _targetThreadId);
+                                        }
                                     }
                                     else
                                     {
@@ -117,7 +123,7 @@ namespace AATelegramBotMusic
                                     await botClient.SendTextMessageAsync(_targetChatId, ex.Message, _targetThreadId);
                                 }
                             }
-                            if (update.Type == UpdateType.Message && update.Message.ReplyToMessage != null)
+                            if (update.Type == UpdateType.Message && message.ReplyToMessage != null)
                             {
                                 if(message.Text != ":)")
                                 {
@@ -128,21 +134,7 @@ namespace AATelegramBotMusic
                                     return;
                                 }
 
-                                var resultApprove = await _musicService.ApproveMusic(update.Message.ReplyToMessage.MessageId);
-                                if (!resultApprove)
-                                {
-                                    await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось подтвердить загрузку музыки, либо она уже подтверждена.", _targetThreadId);
-                                    return;
-                                }
-
-                                var resultMusicName = await _musicService.AddToServer(update.Message.ReplyToMessage.MessageId);
-                                if (String.IsNullOrWhiteSpace(resultMusicName))
-                                {
-                                    await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, не удалось загрузить музыку на сервер.", _targetThreadId);
-                                    return;
-                                }
-
-                                await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, {resultMusicName} успешно загружена на сервер.", _targetThreadId);
+                                await AddMusic(message);
                             }
 
                             return;
@@ -228,6 +220,30 @@ namespace AATelegramBotMusic
             }
 
             return true;
+        }
+        /// <summary>
+        /// Добавление музыки на сервер
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private async Task AddMusic(Message message)
+        {
+            var resultApprove = await _musicService.ApproveMusic(message.ReplyToMessage.MessageId);
+            if (!resultApprove)
+            {
+                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, не удалось подтвердить загрузку музыки, либо она уже подтверждена.", _targetThreadId);
+                return;
+            }
+
+            var resultMusicName = await _musicService.AddToServer(message.ReplyToMessage.MessageId);
+            if (String.IsNullOrWhiteSpace(resultMusicName))
+            {
+                await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, не удалось загрузить музыку на сервер.", _targetThreadId);
+                await _musicService.ApproveAsNotMusic(message.ReplyToMessage.MessageId);
+                return;
+            }
+
+            await _botClient.SendTextMessageAsync(_targetChatId, $"@{message.From?.Username}, {resultMusicName} успешно загружена на сервер.", _targetThreadId);
         }
         /// <summary>
         /// Создание и сохранение файла на машине

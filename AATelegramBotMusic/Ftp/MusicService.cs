@@ -27,9 +27,9 @@ namespace AATelegramBotMusic.Ftp
                     TgMessageId = musicInfo.TgMessageId
                 });
         }
-        public async Task<bool> ApproveMusic(int originalMessageId)
+        public async Task<bool> ApproveMusic(int messageId)
         {
-            var music = await _musicRepository.GetNotApproved(originalMessageId);
+            var music = await _musicRepository.GetNotApproved(messageId);
 
             if (music is null)
             {
@@ -65,6 +65,18 @@ namespace AATelegramBotMusic.Ftp
             await _musicRepository.Delete(music);
 
             return musicInfo.Name;
+        }
+        public async Task<bool> ApproveAsNotMusic(int messageId)
+        {
+            var music = await _musicRepository.GetApproved(messageId);
+
+            if (music is null)
+            {
+                return false;
+            }
+
+            music.IsApproved = false;
+            return await _musicRepository.Update(music);
         }
     }
 }

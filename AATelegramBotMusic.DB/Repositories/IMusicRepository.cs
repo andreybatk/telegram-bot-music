@@ -8,6 +8,7 @@ namespace AATelegramBotMusic.DB.Repositories
         Task<bool> Create(Music music);
         Task<bool> Update(Music music);
         Task<bool> Delete(Music? music);
+        Task<Music?> GetApproved(int messageId);
         Task<Music?> GetNotApproved(int messageId);
         Task<Music?> Get(int messageId);
     }

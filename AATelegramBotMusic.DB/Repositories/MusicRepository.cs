@@ -52,6 +52,10 @@ namespace AATelegramBotMusic.DB.Repositories
         {
             return await _context.Musics.FirstOrDefaultAsync(x => x.TgMessageId == messageId && !x.IsApproved);
         }
+        public async Task<Music?> GetApproved(int messageId)
+        {
+            return await _context.Musics.FirstOrDefaultAsync(x => x.TgMessageId == messageId && x.IsApproved);
+        }
         public async Task<Music?> Get(int messageId)
         {
             return await _context.Musics.FirstOrDefaultAsync(x => x.TgMessageId == messageId);
