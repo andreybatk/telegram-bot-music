@@ -2,6 +2,7 @@
 using AATelegramBotMusic.DB;
 using AATelegramBotMusic.DB.Repositories;
 using AATelegramBotMusic.Ftp;
+using AATelegramBotMusic.Music;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

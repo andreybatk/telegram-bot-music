@@ -1,8 +1,9 @@
 ﻿using AATelegramBotMusic.DB.Repositories;
+using AATelegramBotMusic.Ftp;
 using AATelegramBotMusic.Models;
 using Telegram.Bot.Types;
 
-namespace AATelegramBotMusic.Ftp
+namespace AATelegramBotMusic.Music
 {
     public class MusicService : IMusicService
     {
@@ -41,7 +42,7 @@ namespace AATelegramBotMusic.Ftp
                 InPath = music.InPath,
                 OutPath = music.OutPath,
                 TgUserName = music.TgUserName,
-                TgMessageId= music.TgMessageId,
+                TgMessageId = music.TgMessageId,
                 IsApproved = music.IsApproved
             };
 

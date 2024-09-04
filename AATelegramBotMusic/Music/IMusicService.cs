@@ -1,6 +1,6 @@
 ﻿using AATelegramBotMusic.Models;
 
-namespace AATelegramBotMusic.Ftp
+namespace AATelegramBotMusic.Music
 {
     public interface IMusicService
     {
