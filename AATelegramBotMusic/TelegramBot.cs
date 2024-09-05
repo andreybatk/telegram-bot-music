@@ -40,8 +40,7 @@ namespace AATelegramBotMusic
                 AllowedUpdates = new[]
                 {
                     UpdateType.Message,
-                    UpdateType.MessageReaction,
-                    UpdateType.CallbackQuery
+                    UpdateType.MessageReaction
                 }
             };
 
@@ -109,7 +108,7 @@ namespace AATelegramBotMusic
                                         }
                                         else
                                         {
-                                            await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка успешно преобразовалась в wav и будет добавлена после подтверждения одного из админов: @{string.Join(", @", _admins)}", _targetThreadId);
+                                            await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка будет добавлена после подтверждения одного из админов: @{string.Join(", @", _admins)}", _targetThreadId);
                                         }
                                     }
                                     else
@@ -138,7 +137,6 @@ namespace AATelegramBotMusic
                                 return;
                             }
 
-                            // Проверка, что реакция является смайлом
                             if (messageReaction.NewReaction.Length > 0 ? messageReaction.NewReaction[0] is Telegram.Bot.Types.ReactionTypeEmoji emojiReaction : false)
                             {
                                 string emoji = emojiReaction.Emoji;
