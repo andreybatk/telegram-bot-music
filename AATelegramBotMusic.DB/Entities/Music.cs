@@ -30,5 +30,9 @@
         /// Telegram Message Id
         /// </summary>
         public int TgMessageId { get; set; }
+        /// <summary>
+        /// Media Group Id
+        /// </summary>
+        public string? MediaGroupId { get; set; }
     }
 }

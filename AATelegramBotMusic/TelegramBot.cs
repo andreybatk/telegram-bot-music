@@ -67,7 +67,7 @@ namespace AATelegramBotMusic
                             var message = update.Message;
                             var user = message?.From;
 
-                            Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId} /msgid:{message.MessageId} ");
+                            Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId} /msgid:{message.MessageId} /mediagroupid {message.MediaGroupId}");
 
                             if (message?.MessageThreadId != _targetThreadId)
                             {
@@ -108,7 +108,7 @@ namespace AATelegramBotMusic
                                         }
                                         else
                                         {
-                                            await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, музыка будет добавлена после подтверждения одного из админов: @{string.Join(", @", _admins)}", _targetThreadId);
+                                            await botClient.SendTextMessageAsync(_targetChatId, $"@{user?.Username}, {musicInfo.Name} будет добавлена после подтверждения одного из админов: @{string.Join(", @", _admins)}", _targetThreadId);
                                         }
                                     }
                                     else
@@ -140,10 +140,11 @@ namespace AATelegramBotMusic
                             if (messageReaction.NewReaction.Length > 0 ? messageReaction.NewReaction[0] is Telegram.Bot.Types.ReactionTypeEmoji emojiReaction : false)
                             {
                                 string emoji = emojiReaction.Emoji;
-                                if(emoji != "👍")
+                                if (emoji != "👍")
                                 {
                                     return;
                                 }
+
                                 await AddMusic(user, messageReaction.MessageId);
                             }
 
@@ -227,7 +228,7 @@ namespace AATelegramBotMusic
                 name = message?.Audio?.FileName?.Length > 32 ? message?.Audio?.FileName?.Substring(0, 32).Replace(".mp3", "") : message?.Audio?.FileName?.Replace(".mp3", "");
             }
 
-            return new MusicInfo() { Name = name, TgUserName = message?.From?.Username ?? "Undefined", TgMessageId = message.MessageId };
+            return new MusicInfo() { Name = name, TgUserName = message?.From?.Username ?? "Undefined", TgMessageId = message.MessageId, MediaGroupId = message.MediaGroupId };
         }
         /// <summary>
         /// Добавление музыки на сервер
@@ -240,19 +241,18 @@ namespace AATelegramBotMusic
             var resultApprove = await _musicService.ApproveMusic(messageId);
             if (!resultApprove)
             {
-                //await _botClient.SendTextMessageAsync(_targetChatId, $"@{user.Username}, не удалось подтвердить загрузку музыки, либо она уже подтверждена.", _targetThreadId);
                 return;
             }
 
-            var resultMusicName = await _musicService.AddToServer(messageId);
-            if (String.IsNullOrWhiteSpace(resultMusicName))
+            var resultMusicNames = await _musicService.AddToServer(messageId);
+            if (resultMusicNames is null)
             {
                 await _botClient.SendTextMessageAsync(_targetChatId, $"@{user.Username}, не удалось загрузить музыку на сервер.", _targetThreadId);
                 await _musicService.ApproveAsNotMusic(messageId);
                 return;
             }
 
-            await _botClient.SendTextMessageAsync(_targetChatId, $"@{user.Username}, {resultMusicName} успешно загружена на сервер.", _targetThreadId);
+            await _botClient.SendTextMessageAsync(_targetChatId, $"@{user.Username}, {string.Join(", ", resultMusicNames)} успешно загружена на сервер.", _targetThreadId);
         }
         /// <summary>
         /// Создание и сохранение файла на машине

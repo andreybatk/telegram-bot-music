@@ -5,8 +5,8 @@ namespace AATelegramBotMusic.Music
     public interface IMusicService
     {
         Task<bool> Create(MusicInfo musicInfo);
-        Task<bool> ApproveMusic(int originalMessageId);
+        Task<List<string>?> AddToServer(int messageId);
+        Task<bool> ApproveMusic(int messageId);
         Task<bool> ApproveAsNotMusic(int messageId);
-        Task<string?> AddToServer(int messageId);
     }
 }

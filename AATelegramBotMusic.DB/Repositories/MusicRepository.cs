@@ -56,9 +56,21 @@ namespace AATelegramBotMusic.DB.Repositories
         {
             return await _context.Musics.FirstOrDefaultAsync(x => x.TgMessageId == messageId && x.IsApproved);
         }
+        public async Task<List<Music>> GetNotApproved(string? mediaGroupId)
+        {
+            return await _context.Musics.Where(x => x.MediaGroupId == mediaGroupId && !x.IsApproved).ToListAsync();
+        }
+        public async Task<List<Music>> GetApproved(string? mediaGroupId)
+        {
+            return await _context.Musics.Where(x => x.MediaGroupId == mediaGroupId && x.IsApproved).ToListAsync();
+        }
         public async Task<Music?> Get(int messageId)
         {
             return await _context.Musics.FirstOrDefaultAsync(x => x.TgMessageId == messageId);
+        }
+        public async Task<List<Music>> Get(string? mediaGroupId)
+        {
+            return await _context.Musics.Where(x => x.MediaGroupId == mediaGroupId).ToListAsync();
         }
     }
 }

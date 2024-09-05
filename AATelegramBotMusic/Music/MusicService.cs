@@ -1,6 +1,7 @@
 ﻿using AATelegramBotMusic.DB.Repositories;
 using AATelegramBotMusic.Ftp;
 using AATelegramBotMusic.Models;
+using Telegram.Bot.Types;
 
 namespace AATelegramBotMusic.Music
 {
@@ -24,10 +25,62 @@ namespace AATelegramBotMusic.Music
                     Name = musicInfo.Name,
                     OutPath = musicInfo.OutPath,
                     TgUserName = musicInfo.TgUserName,
-                    TgMessageId = musicInfo.TgMessageId
+                    TgMessageId = musicInfo.TgMessageId,
+                    MediaGroupId = musicInfo.MediaGroupId
                 });
         }
-        public async Task<string?> AddToServer(int messageId)
+        public async Task<List<string>?> AddToServer(int messageId)
+        {
+            var music = await _musicRepository.Get(messageId);
+            var result = new List<string>();
+
+            if(music is null)
+            {
+                return null;
+            }
+
+            if(music.MediaGroupId is null)
+            {
+                var name = await AddToServerOne(messageId);
+                result.Add(name);
+                return result;
+            }
+
+            return await AddToServerMany(music.MediaGroupId);
+        }
+        public async Task<bool> ApproveMusic(int messageId)
+        {
+            var music = await _musicRepository.Get(messageId);
+
+            if (music is null)
+            {
+                return false;
+            }
+
+            if (music.MediaGroupId is null)
+            {
+                return await ApproveMusicOne(messageId);
+            }
+
+            return await ApproveMusicMany(music.MediaGroupId);
+        }
+        public async Task<bool> ApproveAsNotMusic(int messageId)
+        {
+            var music = await _musicRepository.Get(messageId);
+
+            if (music is null)
+            {
+                return false;
+            }
+
+            if (music.MediaGroupId is null)
+            {
+                return await ApproveAsNotMusicOne(messageId);
+            }
+
+            return await ApproveAsNotMusicMany(music.MediaGroupId);
+        }
+        private async Task<string> AddToServerOne(int messageId)
         {
             var music = await _musicRepository.Get(messageId);
             if (music is null)
@@ -42,19 +95,55 @@ namespace AATelegramBotMusic.Music
                 OutPath = music.OutPath,
                 TgUserName = music.TgUserName,
                 TgMessageId = music.TgMessageId,
+                MediaGroupId = music.MediaGroupId,
                 IsApproved = music.IsApproved
             };
 
-            await _ftpService.AddMusicFileAsync(musicInfo);
-            await _ftpService.AddMusicInfoInFileAsync(musicInfo);
-            DeleteMusicFile(musicInfo.InPath);
-            DeleteMusicFile(musicInfo.OutPath);
+            //await _ftpService.AddMusicFileAsync(musicInfo);
+            //await _ftpService.AddMusicInfoInFileAsync(musicInfo);
+            //DeleteMusicFile(musicInfo.InPath);
+            //DeleteMusicFile(musicInfo.OutPath);
 
             await _musicRepository.Delete(music);
 
             return musicInfo.Name;
         }
-        public async Task<bool> ApproveMusic(int messageId)
+        private async Task<List<string>> AddToServerMany(string? mediaGroupId)
+        {
+            var musics = await _musicRepository.Get(mediaGroupId);
+            if (musics is null)
+            {
+                return null;
+            }
+
+            var result = new List<string>();
+
+            foreach (var music in musics)
+            {
+                var musicInfo = new MusicInfo
+                {
+                    Name = music.Name,
+                    InPath = music.InPath,
+                    OutPath = music.OutPath,
+                    TgUserName = music.TgUserName,
+                    TgMessageId = music.TgMessageId,
+                    MediaGroupId = music.MediaGroupId,
+                    IsApproved = music.IsApproved
+                };
+
+                //await _ftpService.AddMusicFileAsync(musicInfo);
+                //await _ftpService.AddMusicInfoInFileAsync(musicInfo);
+                //DeleteMusicFile(musicInfo.InPath);
+                //DeleteMusicFile(musicInfo.OutPath);
+
+                await _musicRepository.Delete(music);
+
+                result.Add(musicInfo.Name);
+            }
+
+            return result;
+        }
+        private async Task<bool> ApproveMusicOne(int messageId)
         {
             var music = await _musicRepository.GetNotApproved(messageId);
 
@@ -66,7 +155,7 @@ namespace AATelegramBotMusic.Music
             music.IsApproved = true;
             return await _musicRepository.Update(music);
         }
-        public async Task<bool> ApproveAsNotMusic(int messageId)
+        private async Task<bool> ApproveAsNotMusicOne(int messageId)
         {
             var music = await _musicRepository.GetApproved(messageId);
 
@@ -77,6 +166,40 @@ namespace AATelegramBotMusic.Music
 
             music.IsApproved = false;
             return await _musicRepository.Update(music);
+        }
+        private async Task<bool> ApproveAsNotMusicMany(string? mediaGroupId)
+        {
+            var musics = await _musicRepository.GetApproved(mediaGroupId);
+
+            if (musics is null)
+            {
+                return false;
+            }
+
+            foreach (var music in musics)
+            {
+                music.IsApproved = false;
+                await _musicRepository.Update(music);
+            }
+
+            return true;
+        }
+        private async Task<bool> ApproveMusicMany(string? mediaGroupId)
+        {
+            var musics = await _musicRepository.GetNotApproved(mediaGroupId);
+
+            if (musics is null)
+            {
+                return false;
+            }
+
+            foreach (var music in musics)
+            {
+                music.IsApproved = true;
+                await _musicRepository.Update(music);
+            }
+
+            return true;
         }
         /// <summary>
         /// Удалят файл музыки из машины
