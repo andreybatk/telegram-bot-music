@@ -53,28 +53,6 @@ namespace AATelegramBotMusic.Ftp
             }
            
         }
-        /// <summary>
-        /// Удалят файл музыки из машины
-        /// </summary>
-        /// <param name="filePath"></param>
-        public void DeleteMusicFile(string filePath)
-        {
-            try
-            {
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
-                else
-                {
-                    Console.WriteLine($"Не удалось удалить файл, {filePath} не найден.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Произошла ошибка при удалении файла: {ex.Message}");
-            }
-        }
         public async Task AddMusicFileAsync(MusicInfo? info)
         {
             if (info is null)

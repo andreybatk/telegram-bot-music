@@ -1,7 +1,6 @@
 ﻿using AATelegramBotMusic.DB.Repositories;
 using AATelegramBotMusic.Ftp;
 using AATelegramBotMusic.Models;
-using Telegram.Bot.Types;
 
 namespace AATelegramBotMusic.Music
 {
@@ -48,8 +47,8 @@ namespace AATelegramBotMusic.Music
 
             await _ftpService.AddMusicFileAsync(musicInfo);
             await _ftpService.AddMusicInfoInFileAsync(musicInfo);
-            _ftpService.DeleteMusicFile(musicInfo.InPath);
-            _ftpService.DeleteMusicFile(musicInfo.OutPath);
+            DeleteMusicFile(musicInfo.InPath);
+            DeleteMusicFile(musicInfo.OutPath);
 
             await _musicRepository.Delete(music);
 
@@ -78,6 +77,28 @@ namespace AATelegramBotMusic.Music
 
             music.IsApproved = false;
             return await _musicRepository.Update(music);
+        }
+        /// <summary>
+        /// Удалят файл музыки из машины
+        /// </summary>
+        /// <param name="filePath"></param>
+        private void DeleteMusicFile(string filePath)
+        {
+            try
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+                else
+                {
+                    Console.WriteLine($"Не удалось удалить файл, {filePath} не найден.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Произошла ошибка при удалении файла: {ex.Message}");
+            }
         }
     }
 }

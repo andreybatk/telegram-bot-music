@@ -6,6 +6,5 @@ namespace AATelegramBotMusic.Ftp
     {
         Task AddMusicInfoInFileAsync(MusicInfo? info);
         Task AddMusicFileAsync(MusicInfo? info);
-        void DeleteMusicFile(string filePath);
     }
 }

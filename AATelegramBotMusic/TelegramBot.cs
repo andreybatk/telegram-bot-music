@@ -68,7 +68,7 @@ namespace AATelegramBotMusic
                             var message = update.Message;
                             var user = message?.From;
 
-                            Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId}");
+                            Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId} /msgid:{message.MessageId} ");
 
                             if (message?.MessageThreadId != _targetThreadId)
                             {
@@ -129,12 +129,26 @@ namespace AATelegramBotMusic
                             var messageReaction = update.MessageReaction;
                             var user = messageReaction.User;
 
+                            if (messageReaction.Chat.Id != _targetChatId)
+                            {
+                                return;
+                            }
                             if (!_admins.Contains(user.Username))
                             {
                                 return;
                             }
 
-                            await AddMusic(user, messageReaction.MessageId);
+                            // Проверка, что реакция является смайлом
+                            if (messageReaction.NewReaction.Length > 0 ? messageReaction.NewReaction[0] is Telegram.Bot.Types.ReactionTypeEmoji emojiReaction : false)
+                            {
+                                string emoji = emojiReaction.Emoji;
+                                if(emoji != "👍")
+                                {
+                                    return;
+                                }
+                                await AddMusic(user, messageReaction.MessageId);
+                            }
+
                         }
                         break;
                 }
@@ -173,7 +187,7 @@ namespace AATelegramBotMusic
                 chatId: _targetChatId,
                 text: $"Music Bot Manager.\r\nДля добавления музыки на Music Block прикрепите файл(ы).\r\n" +
                 "Максимальный размер 2 МБ. Музыка должна быть в формате mp3 и длиться не более 25 секунд.\r\n" +
-                $"Чтобы подтвердить загрузку музыки на сервер один из админов @{string.Join(", @", _admins)} должен поставить реакцию на сообщение.",
+                $"Чтобы подтвердить загрузку музыки на сервер один из админов @{string.Join(", @", _admins)} должен поставить 👍 на сообщение.",
                 messageThreadId: _targetThreadId
             );
         }
