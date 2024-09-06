@@ -99,10 +99,10 @@ namespace AATelegramBotMusic.Music
                 IsApproved = music.IsApproved
             };
 
-            //await _ftpService.AddMusicFileAsync(musicInfo);
-            //await _ftpService.AddMusicInfoInFileAsync(musicInfo);
-            //DeleteMusicFile(musicInfo.InPath);
-            //DeleteMusicFile(musicInfo.OutPath);
+            await _ftpService.AddMusicFileAsync(musicInfo);
+            await _ftpService.AddMusicInfoInFileAsync(musicInfo);
+            DeleteMusicFile(musicInfo.InPath);
+            DeleteMusicFile(musicInfo.OutPath);
 
             await _musicRepository.Delete(music);
 
@@ -131,10 +131,10 @@ namespace AATelegramBotMusic.Music
                     IsApproved = music.IsApproved
                 };
 
-                //await _ftpService.AddMusicFileAsync(musicInfo);
-                //await _ftpService.AddMusicInfoInFileAsync(musicInfo);
-                //DeleteMusicFile(musicInfo.InPath);
-                //DeleteMusicFile(musicInfo.OutPath);
+                await _ftpService.AddMusicFileAsync(musicInfo);
+                await _ftpService.AddMusicInfoInFileAsync(musicInfo);
+                DeleteMusicFile(musicInfo.InPath);
+                DeleteMusicFile(musicInfo.OutPath);
 
                 await _musicRepository.Delete(music);
 
