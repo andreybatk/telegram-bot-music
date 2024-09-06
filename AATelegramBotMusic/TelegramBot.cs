@@ -67,7 +67,7 @@ namespace AATelegramBotMusic
                             var message = update.Message;
                             var user = message?.From;
 
-                            Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId} /msgid:{message.MessageId} /mediagroupid {message.MediaGroupId}");
+                            //Console.WriteLine($"{user.Username}: {message.Text} / ChatId: {message.Chat.Id} /ThreadId: {message.MessageThreadId} /msgid:{message.MessageId} /mediagroupid {message.MediaGroupId}");
 
                             if (message?.MessageThreadId != _targetThreadId)
                             {
