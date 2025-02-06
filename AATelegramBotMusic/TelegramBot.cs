@@ -52,6 +52,7 @@ namespace AATelegramBotMusic
             if (_isWelcomeMessage)
             {
                 await HandleStartCommand();
+                AppDomain.CurrentDomain.ProcessExit += async (sender, eventArgs) => await HandleStopCommand();
             }
 
             await Task.Delay(-1);
@@ -187,6 +188,18 @@ namespace AATelegramBotMusic
                 text: $"Music Bot Manager.\r\nДля добавления музыки на Music Block прикрепите файл(ы).\r\n" +
                 "Максимальный размер 2 МБ. Музыка должна быть в формате mp3 и длиться не более 25 секунд.\r\n" +
                 $"Чтобы подтвердить загрузку музыки на сервер один из админов @{string.Join(", @", _admins)} должен поставить 👍 на сообщение.",
+                messageThreadId: _targetThreadId
+            );
+        }
+        /// <summary>
+        /// Завершающее сообщение
+        /// </summary>
+        /// <returns></returns>
+        private async Task HandleStopCommand()
+        {
+            await _botClient.SendTextMessageAsync(
+                chatId: _targetChatId,
+                text: "Бот завершает работу. Спасибо, что пользовались Music Bot Manager! 🎵",
                 messageThreadId: _targetThreadId
             );
         }
