@@ -26,10 +26,10 @@ namespace AATelegramBotMusic
             var services = new ServiceCollection()
                 .AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseSqlServer(connection);
+                    options.UseMySQL(connection);
                 })
                 .AddSingleton<TelegramBot>()
-                .AddSingleton<IMusicConverter, FFMpegMusicConverter>()
+                .AddSingleton<IMusicConverter, NAudioMusicConverter>()
                 .AddSingleton<IMusicService, MusicService>()
                 .AddScoped<IMusicRepository, MusicRepository>()
                 .AddScoped<IFtpService, FtpService>()

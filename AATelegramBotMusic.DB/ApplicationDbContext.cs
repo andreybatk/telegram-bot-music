@@ -1,5 +1,6 @@
 ﻿using AATelegramBotMusic.DB.Entities;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace AATelegramBotMusic.DB
 {
