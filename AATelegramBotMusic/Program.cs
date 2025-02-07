@@ -22,7 +22,7 @@ namespace AATelegramBotMusic
 
             var services = new ServiceCollection()
                 .AddSingleton<TelegramBot>()
-                .AddSingleton<IMusicConverter, FFMpegMusicConverter>()
+                .AddSingleton<IMusicConverter, NAudioMusicConverter>()
                 .AddSingleton<IMusicService, MusicService>()
                 .AddSingleton<IMusicRepository, LocalMusicRepository>()
                 .AddScoped<IFtpService, FtpService>()

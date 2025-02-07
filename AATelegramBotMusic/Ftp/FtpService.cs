@@ -65,7 +65,7 @@ namespace AATelegramBotMusic.Ftp
         private async Task DownloadFileAsync()
         {
             using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect();
+            await ftp.AutoConnect();
 
             var status = await ftp.DownloadFile(_localPath, _remotePath, FtpLocalExists.Overwrite);
             if (status.IsFailure()) throw new InvalidOperationException("DownloadFileAsync is failure!");
@@ -73,7 +73,7 @@ namespace AATelegramBotMusic.Ftp
         private async Task UploadInfoFileAsync()
         {
             using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect();
+            await ftp.AutoConnect();
 
             var status = await ftp.UploadFile(_localPath, _remotePath, FtpRemoteExists.Overwrite, true);
             if (status.IsFailure()) throw new InvalidOperationException("UploadInfoFileAsync is failure!");
@@ -81,7 +81,7 @@ namespace AATelegramBotMusic.Ftp
         private async Task UploadMusicFileAsync(MusicInfo? info)
         {
             using var ftp = new AsyncFtpClient(_host, _username, _password);
-            await ftp.Connect();
+            await ftp.AutoConnect();
 
             var status = await ftp.UploadFile(info.OutPath, _musicPath + info.OutPath, FtpRemoteExists.Overwrite, true);
             if (status.IsFailure()) throw new InvalidOperationException("UploadMusicFileAsync is failure!");
